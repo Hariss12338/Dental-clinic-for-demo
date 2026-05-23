@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AÉSTHETIQUE | Advanced Clinical & Restorative Oral Medicine</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['Playfair Display', 'serif'],
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        medicalDark: '#0E1012',      
+                        medicalSurface: '#15181C',   
+                        medicalSurfaceElevated: '#1D2126', 
+                        champagneGold: '#BC9F77',    
+                        champagneMuted: '#967F5E',   
+                        clinicalWhite: '#F8F9FA',    
+                        clinicalMuted: '#8E959E',    
+                        clinicalBorder: 'rgba(255, 255, 255, 0.06)',
+                        clinicalBorderActive: 'rgba(188, 159, 119, 0.3)',
+                        darkGoldenGlow: 'rgba(142, 110, 63, 0.12)'
+                    },
+                    spacing: {
+                        '36': '9rem',
+                        '44': '11rem',
+                        '72': '18rem',
+                        '96': '24rem',
+                        '128': '32rem',
+                    },
+                    letterSpacing: {
+                        clinicalWide: '0.15em',
+                        clinicalUltra: '0.25em'
+                    },
+                    animation: {
+                        'soft-fade-in': 'softFadeIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'slide-up-fade': 'slideUpFade 1s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'pulse-subtle': 'pulseSubtle 4s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        softFadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' }
+                        },
+                        slideUpFade: {
+                            '0%': { opacity: '0', transform: 'translateY(40px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        },
+                        pulseSubtle: {
+                            '0%, 100%': { opacity: '0.25' },
+                            '50%': { opacity: '0.55' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0E1012;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1D2126;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #BC9F77;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0E1012;
+            color: #F8F9FA;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        .text-editorial {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* 3D Global Centered Large Tooth Canvas Layer */
+        #canvas-3d-structural-root {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.35;
+        }
+
+        .content-layer-relative {
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Ambient Dark Golden Glow Slots */
+        .glow-slot-premium {
+            position: relative;
+            background: rgba(21, 24, 28, 0.65);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(188, 159, 119, 0.15);
+            box-shadow: inset 0 0 25px rgba(188, 159, 119, 0.04), 0 15px 35px rgba(0, 0, 0, 0.4);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .glow-slot-premium::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            pointer-events: none;
+            box-shadow: 0 0 40px rgba(142, 110, 63, 0.14);
+            opacity: 0.85;
+            transition: opacity 0.5s ease;
+        }
+
+        .glow-slot-premium:hover {
+            border-color: rgba(188, 159, 119, 0.4);
+            box-shadow: inset 0 0 30px rgba(188, 159, 119, 0.08), 0 0 50px rgba(142, 110, 63, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .clinical-glass {
+            background: rgba(21, 24, 28, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(188, 159, 119, 0.15);
+            box-shadow: 0 0 30px rgba(142, 110, 63, 0.15);
+        }
+
+        .slider-handle {
+            box-shadow: 0 0 0 6px rgba(188, 159, 119, 0.15), 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        .step-panel-hidden {
+            display: none !important;
+            opacity: 0;
+        }
+
+        /* Custom AI Chat Interface Transitions */
+        .chat-container-shadow {
+            box-shadow: 0 20px 50px rgba(0,0,0,0.75), 0 0 50px rgba(142, 110, 63, 0.2);
+        }
+        
+        .message-bubble-bot {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        
+        .message-bubble-user {
+            background: rgba(188, 159, 119, 0.15);
+            border: 1px solid rgba(188, 159, 119, 0.3);
+        }
+    </style>
+</head>
+<body class="selection:bg-champagneGold selection:text-medicalDark">
+
+    <div id="canvas-3d-structural-root"></div>
+
+    <div id="top-status-bar" class="w-full bg-medicalDark/90 border-b border-clinicalBorder text-center py-3 px-4 sticky top-0 z-50 backdrop-blur-md transition-all duration-300">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-xs font-light text-clinicalMuted tracking-wider">
+            <div class="flex items-center gap-2">
+                <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>Sterilization Status: <strong>Class A Cleanroom Validated</strong> (ISO-5 Verification)</span>
+            </div>
+            <div class="hidden md:flex items-center gap-6">
+                <span><i data-lucide="clock" class="w-3.5 h-3.5 inline mr-1 text-champagneGold"></i> Mon - Sat: 9:00 AM - 8:00 PM</span>
+                <span><i data-lucide="map-pin" class="w-3.5 h-3.5 inline mr-1 text-champagneGold"></i> Maker Chambers, Nariman Point, Mumbai</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="https://wa.me/918879390285" target="_blank" class="text-emerald-400 hover:text-white transition-colors flex items-center gap-1 text-[11px] font-medium tracking-widest uppercase">
+                    <i data-lucide="phone-call" class="w-3 h-3"></i> WhatsApp Support
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <header class="w-full border-b border-clinicalBorder bg-medicalDark/70 backdrop-blur-md sticky top-10 z-40 content-layer-relative">
+        <div class="max-w-7xl mx-auto px-6 lg:px-12 h-24 flex items-center justify-between">
+            
+            <a href="#" class="flex flex-col group">
+                <span class="text-editorial text-2xl tracking-widest text-clinicalWhite font-medium transition-colors group-hover:text-champagneGold">AÉSTHETIQUE</span>
+                <span class="text-[9px] uppercase tracking-[0.35em] text-clinicalMuted font-sans">Institute of Advanced Dentistry</span>
+            </a>
+
+            <nav class="hidden lg:flex items-center gap-10 text-xs uppercase tracking-widest font-medium text-clinicalMuted">
+                <div class="relative group">
+                    <button class="hover:text-clinicalWhite flex items-center gap-1 py-2 focus:outline-none">
+                        Clinical Care <i data-lucide="chevron-down" class="w-3 h-3 group-hover:rotate-180 transition-transform duration-300"></i>
+                    </button>
+                    <div class="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-72 bg-medicalSurface p-6 rounded-lg border border-clinicalBorder opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 shadow-2xl z-50">
+                        <div class="space-y-4 font-sans tracking-normal text-left">
+                            <span class="block text-[10px] uppercase tracking-widest text-champagneGold font-semibold mb-2">Specialist Ecosystem</span>
+                            <a href="#micro-veneers" class="block text-sm text-clinicalWhite hover:text-champagneGold transition-colors">Micro-Minimal Veneers</a>
+                            <p class="text-xs text-clinicalMuted -mt-2 mb-2 font-light">Structure-preserving aesthetic ceramic adaptation.</p>
+                            
+                            <a href="#biological-implants" class="block text-sm text-clinicalWhite hover:text-champagneGold transition-colors">Biomimetic Implantology</a>
+                            <p class="text-xs text-clinicalMuted -mt-2 mb-2 font-light">Zirconia-based metal-free physiological replacements.</p>
+                            
+                            <a href="#neuromuscular" class="block text-sm text-clinicalWhite hover:text-champagneGold transition-colors">Occlusion & Reconstruction</a>
+                            <p class="text-xs text-clinicalMuted -mt-2 mb-2 font-light">Full arch biological force balancing.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="#diagnostic-philosophy" class="hover:text-clinicalWhite transition-colors py-2">Our Philosophy</a>
+                <a href="#medical-faculty" class="hover:text-clinicalWhite transition-colors py-2">Medical Faculty</a>
+                <a href="#clinical-cases" class="hover:text-clinicalWhite transition-colors py-2">Case Registry</a>
+                <a href="#technology-suite" class="hover:text-clinicalWhite transition-colors py-2">Technology</a>
+                <a href="#faq-matrix" class="hover:text-clinicalWhite transition-colors py-2">Faq Matrix</a>
+            </nav>
+
+            <div class="hidden sm:flex items-center gap-6">
+                <a href="mailto:hk91527388@gmail.com" class="text-xs tracking-wider text-clinicalMuted hover:text-clinicalWhite transition-colors font-mono flex items-center gap-1.5">
+                    <i data-lucide="mail" class="w-3.5 h-3.5 text-champagneGold"></i> hk91527388@gmail.com
+                </a>
+                <a href="#intake-portal" class="inline-flex items-center justify-center text-[11px] font-medium uppercase tracking-widest px-6 py-3.5 border border-champagneGold text-champagneGold hover:bg-champagneGold hover:text-medicalDark transition-all duration-300 rounded-sm">
+                    Access Intake Portal
+                </a>
+            </div>
+
+            <button onclick="toggleMobileMenu()" class="lg:hidden p-2 text-clinicalWhite hover:text-champagneGold transition-colors focus:outline-none" aria-label="Toggle Navigation">
+                <i data-lucide="menu" id="menu-icon-open" class="w-6 h-6"></i>
+                <i data-lucide="x" id="menu-icon-close" class="w-6 h-6 hidden"></i>
+            </button>
+        </div>
+
+        <div id="mobile-navigation-drawer" class="hidden lg:hidden w-full bg-medicalDark border-b border-clinicalBorder px-6 py-8 space-y-6 font-sans">
+            <div class="flex flex-col gap-4 text-xs uppercase tracking-wider font-medium text-clinicalMuted">
+                <a href="#micro-veneers" onclick="toggleMobileMenu()" class="hover:text-clinicalWhite py-2 border-b border-white/5">Micro-Minimal Veneers</a>
+                <a href="#biological-implants" onclick="toggleMobileMenu()" class="hover:text-clinicalWhite py-2 border-b border-white/5">Biomimetic Implantology</a>
+                <a href="#diagnostic-philosophy" onclick="toggleMobileMenu()" class="hover:text-clinicalWhite py-2 border-b border-white/5">Our Philosophy</a>
+                <a href="#medical-faculty" onclick="toggleMobileMenu()" class="hover:text-clinicalWhite py-2 border-b border-white/5">Medical Faculty</a>
+                <a href="#clinical-cases" onclick="toggleMobileMenu()" class="hover:text-white py-2 border-b border-white/5">Case Registry</a>
+                <a href="#intake-portal" onclick="toggleMobileMenu()" class="inline-block text-center text-xs uppercase tracking-widest px-6 py-4 bg-champagneGold text-medicalDark font-semibold rounded-sm mt-4">Book Consultation Visit</a>
+            </div>
+        </div>
+    </header>
+
+    <section class="relative min-h-[calc(100vh-8.5rem)] flex items-center py-20 px-6 lg:px-12 overflow-hidden content-layer-relative">
+        <div class="absolute top-1/4 right-1/4 w-96 h-96 bg-champagneGold/5 rounded-full filter blur-[140px] pointer-events-none animate-pulse-subtle"></div>
+
+        <div class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-16 items-center relative z-10">
+            
+            <div class="lg:col-span-7 space-y-8 animate-slide-up-fade">
+                <div class="inline-flex items-center gap-2.5 bg-medicalSurface/60 border border-clinicalBorder px-4 py-2 rounded-full shadow-inner shadow-champagneGold/5">
+                    <i data-lucide="shield-alert" class="w-4 h-4 text-champagneGold"></i>
+                    <span class="text-[11px] font-medium tracking-widest text-clinicalMuted uppercase">Biomimetic Methodology &middot; Mumbai Central Clinical Wing</span>
+                </div>
+
+                <h1 class="text-editorial text-4xl sm:text-5xl lg:text-5xl xl:text-6xl text-clinicalWhite font-normal leading-[1.12] max-w-3xl">
+                    Advanced clinical precision <br class="hidden md:inline" />
+                    designed around <span class="italic text-champagneGold">human reassurance.</span>
+                </h1>
+
+                <p class="text-sm sm:text-base text-clinicalMuted leading-relaxed max-w-xl font-light">
+                    Welcome to a calibrated healthcare environment. We unify premier micro-restorative dentistry with absolute biological safety standards, creating natural smile architecture under rigorous medical control right here in Mumbai.
+                </p>
+
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-4">
+                    <a href="#intake-portal" class="inline-flex items-center justify-center text-xs font-semibold uppercase tracking-widest px-8 py-5 bg-champagneGold text-medicalDark hover:bg-clinicalWhite hover:text-medicalDark transition-all duration-300 rounded-sm shadow-xl shadow-champagneGold/10">
+                        Initialize Patient Intake
+                    </a>
+                    <a href="#diagnostic-philosophy" class="inline-flex items-center justify-center text-xs font-semibold uppercase tracking-widest px-8 py-5 border border-clinicalBorder hover:border-champagneGold text-clinicalWhite transition-all duration-300 rounded-sm bg-medicalSurface/30 backdrop-blur-sm">
+                        Analyze Clinical Standards
+                    </a>
+                </div>
+
+                <div class="grid grid-cols-3 gap-6 pt-12 border-t border-clinicalBorder max-w-xl">
+                    <div class="space-y-1">
+                        <div class="text-editorial text-2xl sm:text-3xl text-clinicalWhite font-light">0.05mm</div>
+                        <div class="text-[10px] uppercase tracking-wider text-clinicalMuted">Microscopic Accuracy Spec</div>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="text-editorial text-2xl sm:text-3xl text-clinicalWhite font-light">100%</div>
+                        <div class="text-[10px] uppercase tracking-wider text-clinicalMuted">Biocompatible Ceramics</div>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="text-editorial text-2xl sm:text-3xl text-clinicalWhite font-light">AAID</div>
+                        <div class="text-[10px] uppercase tracking-wider text-clinicalMuted">Board Certified Oversight</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-5 relative w-full h-[580px] rounded-xl overflow-hidden shadow-2xl group animate-soft-fade-in glow-slot-premium">
+                <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=1200&q=80" 
+                     alt="Surgical grade clinical space highlighting calibrated lighting" 
+                     class="w-full h-full object-cover filter brightness-[0.8] contrast-[1.05] grayscale-[10%] transition-transform duration-700 group-hover:scale-105" />
+                
+                <div class="absolute inset-0 bg-gradient-to-t from-medicalDark via-medicalDark/10 to-transparent"></div>
+
+                <div class="absolute bottom-6 left-6 right-6 clinical-glass p-6 rounded-lg space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-full bg-champagneGold/10 flex items-center justify-center text-champagneGold border border-champagneGold/20">
+                                <i data-lucide="microscope" class="w-4 h-4"></i>
+                            </div>
+                            <div>
+                                <span class="block text-xs font-semibold text-clinicalWhite uppercase tracking-wider">Carl Zeiss Surgical Unit</span>
+                                <span class="block text-[11px] text-clinicalMuted font-light">Continuous real-time structural diagnostic tracking</span>
+                            </div>
+                        </div>
+                        <span class="text-[9px] font-mono border border-clinicalBorder bg-medicalDark px-2 py-0.5 rounded text-champagneGold">ACTIVE</span>
+                    </div>
+                    <div class="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                        <div class="h-full w-4/5 bg-champagneGold rounded-full animate-pulse"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="border-y border-clinicalBorder bg-medicalSurface/20 py-10 px-6 lg:px-12 text-center content-layer-relative">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-center lg:justify-between gap-10 opacity-40 filter grayscale contrast-200">
+            <span class="text-xs tracking-[0.3em] uppercase text-clinicalWhite font-medium">American Academy of Cosmetic Dentistry</span>
+            <span class="text-xs tracking-[0.3em] uppercase text-clinicalWhite font-medium">Academy of General Dentistry</span>
+            <span class="text-xs tracking-[0.3em] uppercase text-clinicalWhite font-medium">International Congress of Oral Implantologists</span>
+            <span class="text-xs tracking-[0.3em] uppercase text-clinicalWhite font-medium">Biomimetic Dentistry Association</span>
+        </div>
+    </section>
+
+    <section id="diagnostic-philosophy" class="py-32 px-6 lg:px-12 max-w-7xl mx-auto space-y-24 content-layer-relative">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+            <div class="lg:col-span-5 space-y-4">
+                <span class="text-xs uppercase tracking-widest text-champagneGold font-semibold block">Surgical Integrity</span>
+                <h2 class="text-editorial text-3xl sm:text-4xl text-clinicalWhite font-normal leading-snug">
+                    Deconstructing hyper-synthetic dental trends to preserve your systemic health ecosystem.
+                </h2>
+            </div>
+            <div class="lg:col-span-7 lg:pt-6">
+                <p class="text-sm sm:text-base text-clinicalMuted font-light leading-relaxed">
+                    We intentionally distance our clinical philosophy from the over-accelerated, aggressive branding aesthetics of fashion-centric veneer mills. A tooth is a living organ, structurally linked to your neuromuscular grid. Our mandate is the absolute containment of trauma, utilizing micro-magnification parameters that respect organic dental anatomy.
+                </p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="p-8 rounded-lg glow-slot-premium space-y-6">
+                <div class="w-12 h-12 rounded-lg bg-white/5 border border-clinicalBorder flex items-center justify-center text-champagneGold">
+                    <i data-lucide="heart-pulse" class="w-5 h-5"></i>
+                </div>
+                <h3 class="text-lg font-medium text-clinicalWhite">Biocompatible Materials Only</h3>
+                <p class="text-xs sm:text-sm text-clinicalMuted font-light leading-relaxed">
+                    Absolute elimination of toxic composite monomers, mercury amalgams, or structural metal sub-layers. Every material matched perfectly to individual systemic patient biochemistry profiles.
+                </p>
+            </div>
+
+            <div class="p-8 rounded-lg glow-slot-premium space-y-6">
+                <div class="w-12 h-12 rounded-lg bg-white/5 border border-clinicalBorder flex items-center justify-center text-champagneGold">
+                    <i data-lucide="eye" class="w-5 h-5"></i>
+                </div>
+                <h3 class="text-lg font-medium text-clinicalWhite">Microscopic Preparation Margins</h3>
+                <p class="text-xs sm:text-sm text-clinicalMuted font-light leading-relaxed">
+                    By maximizing the use of multi-tier stereoscopic medical operating microscopes, our faculty safeguards up to 92% more organic native enamel compared to traditional aggressive procedures.
+                </p>
+            </div>
+
+            <div class="p-8 rounded-lg glow-slot-premium space-y-6">
+                <div class="w-12 h-12 rounded-lg bg-white/5 border border-clinicalBorder flex items-center justify-center text-champagneGold">
+                    <i data-lucide="activity" class="w-5 h-5"></i>
+                </div>
+                <h3 class="text-lg font-medium text-clinicalWhite">Neuromuscular Optimization</h3>
+                <p class="text-xs sm:text-sm text-clinicalMuted font-light leading-relaxed">
+                    Aesthetics are structurally invalid if the occlusion path is flawed. We mathematically trace individual condylar paths to eliminate jaw strain, tension headaches, and early restoration failure.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="specialties-matrix" class="py-32 border-t border-clinicalBorder px-6 lg:px-12 content-layer-relative">
+        <div class="max-w-7xl mx-auto space-y-20">
+            
+            <div class="text-center max-w-2xl mx-auto space-y-4">
+                <span class="text-xs uppercase tracking-widest text-champagneGold font-semibold block">Core Matrix of Competence</span>
+                <h2 class="text-editorial text-3xl sm:text-4xl text-clinicalWhite font-normal">Advanced Restoration & Oral Medicine</h2>
+                <p class="text-sm text-clinicalMuted font-light">
+                    Every discipline executed under elite academic protocols and sterile parameters.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                
+                <div id="micro-veneers" class="glow-slot-premium p-8 rounded-xl space-y-6 group flex flex-col justify-between min-h-[340px]">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-mono tracking-widest text-champagneGold uppercase bg-champagneGold/5 px-2.5 py-1 rounded border border-champagneGold/20">Unit 01</span>
+                            <i data-lucide="layers" class="w-4 h-4 text-clinicalMuted group-hover:text-champagneGold transition-colors"></i>
+                        </div>
+                        <h3 class="text-xl font-normal text-clinicalWhite text-editorial">Micro-Minimal Porcelain Veneers</h3>
+                        <p class="text-xs sm:text-sm text-clinicalMuted font-light leading-relaxed">
+                            Ultra-thin ceramic glass adaptations calculated by master technicians to emulate native optical lucency, light refraction indexes, and natural dentin structures perfectly.
+                        </p>
+                    </div>
+                    <div class="pt-4 border-t border-white/5 flex items-center justify-between text-xs font-medium uppercase tracking-wider">
+                        <span class="text-clinicalMuted font-light">Preservation Rate: &gt;90%</span>
+                        <a href="#intake-portal" class="text-champagneGold inline-flex items-center gap-1.5 hover:text-clinicalWhite transition-colors">Consult Protocol <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></a>
+                    </div>
+                </div>
+
+                <div id="biological-implants" class="glow-slot-premium p-8 rounded-xl space-y-6 group flex flex-col justify-between min-h-[340px]">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-mono tracking-widest text-champagneGold uppercase bg-champagneGold/5 px-2.5 py-1 rounded border border-champagneGold/20">Unit 02</span>
+                            <i data-lucide="activity" class="w-4 h-4 text-clinicalMuted group-hover:text-champagneGold transition-colors"></i>
+                        </div>
+                        <h3 class="text-xl font-normal text-clinicalWhite text-editorial">Biomimetic Ceramic Implantology</h3>
+                        <p class="text-xs sm:text-sm text-clinicalMuted font-light leading-relaxed">
+                            Metal-free, 100% tissue-compatible zirconia implants placed under precise computer-guided structural blueprints for seamless soft-tissue integration and bone vitality.
+                        </p>
+                    </div>
+                    <div class="pt-4 border-t border-white/5 flex items-center justify-between text-xs font-medium uppercase tracking-wider">
+                        <span class="text-clinicalMuted font-light">Material: Pure Zirconia</span>
+                        <a href="#intake-portal" class="text-champagneGold inline-flex items-center gap-1.5 hover:text-clinicalWhite transition-colors">Consult Protocol <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></a>
+                    </div>
+                </div>
+
+                <div id="neuromuscular" class="glow-slot-premium p-8 rounded-xl space-y-6 group flex flex-col justify-between min-h-[340px]">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-mono tracking-widest text-champagneGold uppercase bg-champagneGold/5 px-2.5 py-1 rounded border border-champagneGold/20">Unit 03</span>
+                            <i data-lucide="pocket" class="w-4 h-4 text-clinicalMuted group-hover:text-champagneGold transition-colors"></i>
+                        </div>
+                        <h3 class="text-xl font-normal text-clinicalWhite text-editorial">Full Arch Functional Reconstruction</h3>
+                        <p class="text-xs sm:text-sm text-clinicalMuted font-light leading-relaxed">
+                            Comprehensive systemic management of severe generalized attritional wear, stabilizing skeletal relationship records via computerized gnathological monitoring systems.
+                        </p>
+                    </div>
+                    <div class="pt-4 border-t border-white/5 flex items-center justify-between text-xs font-medium uppercase tracking-wider">
+                        <span class="text-clinicalMuted font-light">Method: Gnathological</span>
+                        <a href="#intake-portal" class="text-champagneGold inline-flex items-center gap-1.5 hover:text-clinicalWhite transition-colors">Consult Protocol <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></a>
+                    </div>
+                </div>
+
+                <div class="glow-slot-premium p-8 rounded-xl space-y-6 group flex flex-col justify-between min-h-[340px]">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-mono tracking-widest text-champagneGold uppercase bg-champagneGold/5 px-2.5 py-1 rounded border border-champagneGold/20">Unit 04</span>
+                            <i data-lucide="regex" class="w-4 h-4 text-clinicalMuted group-hover:text-champagneGold transition-colors"></i>
+                        </div>
+                        <h3 class="text-xl font-normal text-clinicalWhite text-editorial">Micro-Endodontic Therapy</h3>
+                        <p class="text-xs sm:text-sm text-clinicalMuted font-light leading-relaxed">
+                            Advanced root canal architecture isolation using high-grade rubber dams and multi-wave fluid sterilization arrays, preserving teeth otherwise deemed unviable.
+                        </p>
+                    </div>
+                    <div class="pt-4 border-t border-white/5 flex items-center justify-between text-xs font-medium uppercase tracking-wider">
+                        <span class="text-clinicalMuted font-light">Magnification: 24X stereoscopic</span>
+                        <a href="#intake-portal" class="text-champagneGold inline-flex items-center gap-1.5 hover:text-clinicalWhite transition-colors">Consult Protocol <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></a>
+                    </div>
+                </div>
+
+                <div class="glow-slot-premium p-8 rounded-xl space-y-6 group flex flex-col justify-between min-h-[340px]">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-mono tracking-widest text-champagneGold uppercase bg-champagneGold/5 px-2.5 py-1 rounded border border-champagneGold/20">Unit 05</span>
+                            <i data-lucide="shield-check" class="w-4 h-4 text-clinicalMuted group-hover:text-champagneGold transition-colors"></i>
+                        </div>
+                        <h3 class="text-xl font-normal text-clinicalWhite text-editorial">Periodontal Plastic Surgery</h3>
+                        <p class="text-xs sm:text-sm text-clinicalMuted font-light leading-relaxed">
+                            Micro-surgical correction of gingival recession boundaries and uneven framework parameters utilizing microscopic tunneling techniques for enhanced structural biology.
+                        </p>
+                    </div>
+                    <div class="pt-4 border-t border-white/5 flex items-center justify-between text-xs font-medium uppercase tracking-wider">
+                        <span class="text-clinicalMuted font-light">Grafting: Tunnel Technique</span>
+                        <a href="#intake-portal" class="text-champagneGold inline-flex items-center gap-1.5 hover:text-clinicalWhite transition-colors">Consult Protocol <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></a>
+                    </div>
+                </div>
+
+                <div class="glow-slot-premium p-8 rounded-xl space-y-6 group flex flex-col justify-between min-h-[340px]">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-mono tracking-widest text-champagneGold uppercase bg-champagneGold/5 px-2.5 py-1 rounded border border-champagneGold/20">Unit 06</span>
+                            <i data-lucide="snowflake" class="w-4 h-4 text-clinicalMuted group-hover:text-champagneGold transition-colors"></i>
+                        </div>
+                        <h3 class="text-xl font-normal text-clinicalWhite text-editorial">Intravenous Conscious Sedation</h3>
+                        <p class="text-xs sm:text-sm text-clinicalMuted font-light leading-relaxed">
+                            For profound deep medical anxiety, we clear entire surgical suites for singular, customized diagnostic and treatment blocks under certified hospital anesthesiologist control.
+                        </p>
+                    </div>
+                    <div class="pt-4 border-t border-white/5 flex items-center justify-between text-xs font-medium uppercase tracking-wider">
+                        <span class="text-clinicalMuted font-light">Oversight: MD Board Anesthetist</span>
+                        <a href="#intake-portal" class="text-champagneGold inline-flex items-center gap-1.5 hover:text-clinicalWhite transition-colors">Consult Protocol <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section id="technology-suite" class="py-32 max-w-7xl mx-auto px-6 lg:px-12 content-layer-relative">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+            
+            <div class="lg:col-span-5 space-y-6">
+                <span class="text-xs uppercase tracking-widest text-champagneGold font-semibold">Clinical Infrastructure</span>
+                <h2 class="text-editorial text-3xl sm:text-4xl text-clinicalWhite font-normal leading-snug">
+                    Advanced diagnostics leave zero room for speculative observation.
+                </h2>
+                <p class="text-sm text-clinicalMuted font-light leading-relaxed">
+                    By bypassing classical tactile diagnostic pathways, we process architectural oral telemetry in real-time. Our diagnostic loop mitigates spatial margin deviations, allowing us to accurately predict long-term stress load behavior.
+                </p>
+                
+                <div class="space-y-4 pt-4">
+                    <div class="flex gap-4 items-start">
+                        <div class="w-5 h-5 rounded-full bg-champagneGold/10 flex items-center justify-center text-champagneGold shrink-0 mt-0.5">
+                            <i data-lucide="check" class="w-3 h-3"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-medium text-clinicalWhite">Low-Radiation CBCT Tomography</h4>
+                            <p class="text-xs text-clinicalMuted font-light mt-0.5">High-definition three-dimensional micro-bone visualization with 85% lower exposure footprint.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4 items-start">
+                        <div class="w-5 h-5 rounded-full bg-champagneGold/10 flex items-center justify-center text-champagneGold shrink-0 mt-0.5">
+                            <i data-lucide="check" class="w-3 h-3"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-medium text-clinicalWhite">3S Intraoral Optical Telemetry</h4>
+                            <p class="text-xs text-clinicalMuted font-light mt-0.5">Eliminating physical alginate impressions via powderless laser mapping arrays accurate down to 12 microns.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div class="glow-slot-premium p-6 rounded-lg space-y-4">
+                    <span class="text-[10px] font-mono uppercase tracking-widest text-champagneGold block">Apparatus 01</span>
+                    <h4 class="text-base font-medium text-clinicalWhite font-serif">Modulated Photobiomodulation Lasers</h4>
+                    <p class="text-xs text-clinicalMuted font-light leading-relaxed">
+                        Accelerates cellular ATP recovery pathways, decreasing deep post-surgical physical healing cycle time intervals by over 40% natively.
+                    </p>
+                </div>
+
+                <div class="glow-slot-premium p-6 rounded-lg space-y-4">
+                    <span class="text-[10px] font-mono uppercase tracking-widest text-champagneGold block">Apparatus 02</span>
+                    <h4 class="text-base font-medium text-clinicalWhite font-serif">T-Scan Computerized Occlusal Mapping</h4>
+                    <p class="text-xs text-clinicalMuted font-light leading-relaxed">
+                        Digital sensors record structural biting balance force distributions dynamically down to millisecond intervals, avoiding prosthetic point overload.
+                    </p>
+                </div>
+
+                <div class="glow-slot-premium p-6 rounded-lg space-y-4">
+                    <span class="text-[10px] font-mono uppercase tracking-widest text-champagneGold block">Apparatus 03</span>
+                    <h4 class="text-base font-medium text-clinicalWhite font-serif">Ozone Hydro-Sterilization Arrays</h4>
+                    <p class="text-xs text-clinicalMuted font-light leading-relaxed">
+                        Therapeutic biological medical gas application parameters completely neutralizing structural pathogens inside deeper hard tissue layers organically.
+                    </p>
+                </div>
+
+                <div class="glow-slot-premium p-6 rounded-lg space-y-4">
+                    <span class="text-[10px] font-mono uppercase tracking-widest text-champagneGold block">Apparatus 04</span>
+                    <h4 class="text-base font-medium text-clinicalWhite font-serif">In-House CAD/CAM Milling Substructures</h4>
+                    <p class="text-xs text-clinicalMuted font-light leading-relaxed">
+                        Industrial laboratory grade five-axis monolithic ceramic carving units outputting final diagnostic mockups under immediate master specialist refinement.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section id="medical-faculty" class="py-32 border-t border-clinicalBorder px-6 lg:px-12 content-layer-relative">
+        <div class="max-w-7xl mx-auto space-y-24">
+            
+            <div class="max-w-2xl space-y-4">
+                <span class="text-xs uppercase tracking-widest text-champagneGold font-semibold block">Academic Direction</span>
+                <h2 class="text-editorial text-3xl sm:text-4xl text-clinicalWhite font-normal">The Medical Board of Directors</h2>
+                <p class="text-sm text-clinicalMuted font-light">
+                    Clinical innovators maintaining concurrent academic publishing records and international specialty board oversight chairs.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+                
+                <div class="grid grid-cols-1 sm:grid-cols-12 gap-8 glow-slot-premium p-8 rounded-xl items-center">
+                    <div class="sm:col-span-5 h-72 rounded-lg overflow-hidden relative bg-medicalSurface">
+                        <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=600&q=80" 
+                             alt="Dr. Evelyn Vane" class="w-full h-full object-cover filter brightness-90 saturate-[85%]" />
+                    </div>
+                    <div class="sm:col-span-7 space-y-4">
+                        <div>
+                            <span class="text-xs uppercase font-mono tracking-widest text-champagneGold">Chief Clinical Officer</span>
+                            <h3 class="text-editorial text-2xl text-clinicalWhite font-normal mt-1">Dr. Evelyn Vane, DDS, MD</h3>
+                        </div>
+                        <p class="text-xs text-clinicalMuted leading-relaxed font-light">
+                            Alumna of Johns Hopkins Medicine and the Kois Center for Advanced Dentistry. Dr. Vane focuses exclusively on biomimetic micro-ceramic adaptations and biological arch restoration algorithms.
+                        </p>
+                        <ul class="text-[11px] font-mono text-clinicalWhite/80 space-y-1.5 border-t border-white/5 pt-3">
+                            <li><span class="text-champagneGold">&middot;</span> Fellow, International Congress of Oral Implantologists</li>
+                            <li><span class="text-champagneGold">&middot;</span> Active Member, Academy of Biomimetic Dentistry</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-12 gap-8 glow-slot-premium p-8 rounded-xl items-center">
+                    <div class="sm:col-span-5 h-72 rounded-lg overflow-hidden relative bg-medicalSurface">
+                        <img src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=600&q=80" 
+                             alt="Dr. Marcus Thorne" class="w-full h-full object-cover filter brightness-90 saturate-[85%]" />
+                    </div>
+                    <div class="sm:col-span-7 space-y-4">
+                        <div>
+                            <span class="text-xs uppercase font-mono tracking-widest text-champagneGold">Director of Oral Surgery</span>
+                            <h3 class="text-editorial text-2xl text-clinicalWhite font-normal mt-1">Dr. Marcus Thorne, DDS, MS</h3>
+                        </div>
+                        <p class="text-xs text-clinicalMuted leading-relaxed font-light">
+                            Specializes in high-magnification microsurgical periodontics and structural 3D-guided bone morphogenetic matrix loading applications.
+                        </p>
+                        <ul class="text-[11px] font-mono text-clinicalWhite/80 space-y-1.5 border-t border-white/5 pt-3">
+                            <li><span class="text-champagneGold">&middot;</span> Mastership, American Academy of Implant Dentistry</li>
+                            <li><span class="text-champagneGold">&middot;</span> Former Assistant Professor of Periodontics, Columbia University</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section id="emergency-protocol" class="py-32 border-y border-clinicalBorder px-6 lg:px-12 content-layer-relative">
+        <div class="max-w-5xl mx-auto text-center space-y-8 p-12 rounded-2xl glow-slot-premium">
+            <div class="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mx-auto animate-pulse">
+                <i data-lucide="shield-check" class="w-5 h-5"></i>
+            </div>
+            <h2 class="text-editorial text-3xl sm:text-4xl text-clinicalWhite font-normal max-w-2xl mx-auto">
+                Neutralizing clinical stress vectors through deliberate environment pacing.
+            </h2>
+            <p class="text-sm text-clinicalMuted font-light leading-relaxed max-w-2xl mx-auto">
+                We acknowledge that deep dental phobia is a legitimate neurological response patterns. Our rooms feature customized air-acoustic sound decoupling grids, acoustic-isolation spatial noise masking arrays, and dynamic lighting profiles configured to regulate autonomic vagal nerve pathways from the moment of your entry.
+            </p>
+            <div class="inline-flex flex-wrap items-center justify-center gap-6 pt-4 text-xs font-mono text-clinicalWhite/90">
+                <span class="flex items-center gap-1.5"><i data-lucide="volume-x" class="w-4 h-4 text-champagneGold"></i> Zero Auditory Drill Resonance</span>
+                <span class="flex items-center gap-1.5"><i data-lucide="sparkles" class="w-4 h-4 text-champagneGold"></i> Zero Antiseptic Odor Footprint</span>
+                <span class="flex items-center gap-1.5"><i data-lucide="user-check" class="w-4 h-4 text-champagneGold"></i> Isolated Single Patient Blocks</span>
+            </div>
+        </div>
+    </section>
+
+    <section id="clinical-cases" class="py-32 px-6 lg:px-12 max-w-7xl mx-auto space-y-20 content-layer-relative">
+        <div class="text-center max-w-2xl mx-auto space-y-4">
+            <span class="text-xs uppercase tracking-widest text-champagneGold font-semibold block">Verified Clinical Evidence</span>
+            <h2 class="text-editorial text-3xl sm:text-4xl text-clinicalWhite font-normal">Pragmatic Aesthetic Transformations</h2>
+            <p class="text-sm text-clinicalMuted font-light">
+                Unretouched clinical records showing authentic biomimetic structural corrections. Drag to observe adaptation pathways.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            
+            <div class="space-y-6 p-6 rounded-xl glow-slot-premium">
+                <div class="relative w-full h-80 sm:h-96 rounded-lg overflow-hidden select-none" id="slider-container-1">
+                    <img src="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=1200&q=80" 
+                         alt="Pre-operative model" class="absolute inset-0 w-full h-full object-cover filter brightness-75 contrast-125" />
+                    
+                    <div class="absolute inset-y-0 left-0 right-0 overflow-hidden w-1/2" id="after-mask-1">
+                        <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?auto=format&fit=crop&w=1200&q=80" 
+                             alt="Post-operative completed alignment" class="absolute inset-y-0 left-0 w-full h-full max-w-none object-cover filter brightness-90" />
+                    </div>
+
+                    <div class="absolute inset-y-0 left-1/2 w-0.5 bg-champagneGold cursor-ew-resize z-20 flex items-center justify-center" id="slider-bar-1">
+                        <div class="slider-handle w-8 h-8 rounded-full bg-medicalDark border border-champagneGold flex items-center justify-center text-champagneGold bg-medicalSurface">
+                            <i data-lucide="chevrons-left-right" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-between items-start pt-2">
+                    <div>
+                        <h4 class="text-serif text-lg text-clinicalWhite font-medium">Case Study: Structural Attrition Matrix</h4>
+                        <p class="text-xs text-clinicalMuted mt-1 font-light">Generalized deep attrition corrected via minimal-prep biomimetic lithium disilicate layering.</p>
+                    </div>
+                    <span class="text-[10px] font-mono border border-clinicalBorder bg-medicalSurface px-3 py-1 text-clinicalMuted rounded uppercase tracking-wider">Clinical Term: 14 Days</span>
+                </div>
+            </div>
+
+            <div class="space-y-6 p-6 rounded-xl glow-slot-premium">
+                <div class="grid grid-cols-2 gap-4 h-80 sm:h-96">
+                    <div class="rounded-lg overflow-hidden relative bg-medicalSurface border border-clinicalBorder">
+                        <img src="https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=600&q=80" alt="Pre-treatment congenital balance" class="w-full h-full object-cover filter grayscale contrast-125 brightness-75" />
+                        <span class="absolute bottom-3 left-3 text-[9px] font-mono uppercase bg-medicalDark/80 backdrop-blur-md px-2 py-0.5 rounded text-clinicalMuted tracking-widest">Pre-Operative Baseline</span>
+                    </div>
+                    <div class="rounded-lg overflow-hidden relative bg-medicalSurface border border-clinicalBorder">
+                        <img src="https://images.unsplash.com/photo-1513224502586-d1e602410265?auto=format&fit=crop&w=600&q=80" alt="Post-treatment final balanced smile" class="w-full h-full object-cover filter brightness-90" />
+                        <span class="absolute bottom-3 left-3 text-[9px] font-mono uppercase bg-medicalDark/80 backdrop-blur-md px-2 py-0.5 rounded text-champagneGold tracking-widest">Completed Adaptation</span>
+                    </div>
+                </div>
+                <div class="flex justify-between items-start pt-2">
+                    <div>
+                        <h4 class="text-serif text-lg text-clinicalWhite font-medium">Case Study: Congenital Diastema Alignment Path</h4>
+                        <p class="text-xs text-clinicalMuted mt-1 font-light">Eliminated midline spatial separation without structural extraction using biological diagnostic waxups.</p>
+                    </div>
+                    <span class="text-[10px] font-mono border border-clinicalBorder bg-medicalSurface px-3 py-1 text-clinicalMuted rounded uppercase tracking-wider">Clinical Term: 2 Sessions</span>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section id="faq-matrix" class="py-32 border-t border-clinicalBorder bg-medicalDark px-6 lg:px-12 content-layer-relative">
+        <div class="max-w-4xl mx-auto space-y-16">
+            
+            <div class="text-center space-y-4">
+                <span class="text-xs uppercase tracking-widest text-champagneGold font-semibold block">Academic Demystification</span>
+                <h2 class="text-editorial text-3xl sm:text-4xl text-clinicalWhite font-normal">Clinical Standards Verification Matrix</h2>
+                <p class="text-sm text-clinicalMuted font-light">
+                    Direct transparency regarding pricing models, surgical structural limitations, and safe operational guidelines.
+                </p>
+            </div>
+
+            <div class="space-y-4 font-sans">
+                
+                <div class="rounded-lg glow-slot-premium transition-colors">
+                    <button onclick="handleAccordionToggle(this)" class="w-full text-left p-6 flex justify-between items-center text-clinicalWhite font-medium focus:outline-none">
+                        <span class="text-sm md:text-base pr-4">1. Why is structural minimal preparation enamel containment highly vital to dental health?</span>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-clinicalMuted transition-transform duration-300 shrink-0"></i>
+                    </button>
+                    <div class="max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                        <div class="p-6 pt-0 border-t border-white/5 text-xs md:text-sm text-clinicalMuted leading-relaxed space-y-2">
+                            <p class="mt-4">
+                                Enamel acts as the irreplaceable shell protecting the deeper vital dentin layers of your organic tooth grid. Traditional treatments often shave away over 60% of this barrier, causing chronic pulpal inflammation. Our stereoscopic approach preserves native enamel flawlessly.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rounded-lg glow-slot-premium transition-colors">
+                    <button onclick="handleAccordionToggle(this)" class="w-full text-left p-6 flex justify-between items-center text-clinicalWhite font-medium focus:outline-none">
+                        <span class="text-sm md:text-base pr-4">2. How does the laboratory execute biological customization for restorations?</span>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-clinicalMuted transition-transform duration-300 shrink-0"></i>
+                    </button>
+                    <div class="max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                        <div class="p-6 pt-0 border-t border-white/5 text-xs md:text-sm text-clinicalMuted leading-relaxed">
+                            <p class="mt-4">
+                                We decline all use of pre-fabricated generic structural ceramic shells. Every veneer profile is modeled after diagnostic waxups constructed according to individual jaw rotation axes. Our master ceramists hand-layer optical properties to mimic native crystalline structures.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rounded-lg glow-slot-premium transition-colors">
+                    <button onclick="handleAccordionToggle(this)" class="w-full text-left p-6 flex justify-between items-center text-clinicalWhite font-medium focus:outline-none">
+                        <span class="text-sm md:text-base pr-4">3. What scheduling structures manage full dental sedation sessions?</span>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-clinicalMuted transition-transform duration-300 shrink-0"></i>
+                    </button>
+                    <div class="max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                        <div class="p-6 pt-0 border-t border-white/5 text-xs md:text-sm text-clinicalMuted leading-relaxed">
+                            <p class="mt-4">
+                                For highly complex multi-disciplinary cases combined with acute phobic anxiety, we schedule complete isolated single-day environments where a board-certified anesthesiologist manages safe constant-infusion sedation frameworks.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rounded-lg glow-slot-premium transition-colors">
+                    <button onclick="handleAccordionToggle(this)" class="w-full text-left p-6 flex justify-between items-center text-clinicalWhite font-medium focus:outline-none">
+                        <span class="text-sm md:text-base pr-4">4. Do you interface with traditional private health insurance platforms?</span>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-clinicalMuted transition-transform duration-300 shrink-0"></i>
+                    </button>
+                    <div class="max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                        <div class="p-6 pt-0 border-t border-white/5 text-xs md:text-sm text-clinicalMuted leading-relaxed">
+                            <p class="mt-4">
+                                To protect your diagnostic treatment path from corporate financial restriction, we operate out-of-network. We supply itemized documentation packets containing standard dental codifications for your direct reimbursement claims.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rounded-lg glow-slot-premium transition-colors">
+                    <button onclick="handleAccordionToggle(this)" class="w-full text-left p-6 flex justify-between items-center text-clinicalWhite font-medium focus:outline-none">
+                        <span class="text-sm md:text-base pr-4">5. What is the expected biological structural lifecycle of minimal-prep veneers?</span>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-clinicalMuted transition-transform duration-300 shrink-0"></i>
+                    </button>
+                    <div class="max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                        <div class="p-6 pt-0 border-t border-white/5 text-xs md:text-sm text-clinicalMuted leading-relaxed">
+                            <p class="mt-4">
+                                When fused meticulously to real native enamel structure under stereoscopic magnification, lithium disilicate materials easily show clinical lifespans exceeding 15 to 20 years, provided regular bite-balancing preservation schedules are maintained.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rounded-lg glow-slot-premium transition-colors">
+                    <button onclick="handleAccordionToggle(this)" class="w-full text-left p-6 flex justify-between items-center text-clinicalWhite font-medium focus:outline-none">
+                        <span class="text-sm md:text-base pr-4">6. Are zirconia-based ceramic implants structurally superior to titanium amalgams?</span>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-clinicalMuted transition-transform duration-300 shrink-0"></i>
+                    </button>
+                    <div class="max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                        <div class="p-5 pt-0 border-t border-white/5 text-xs md:text-sm text-clinicalMuted leading-relaxed">
+                            <p class="mt-4">
+                                Zirconia implants represent absolute metal-free biological integration. They show substantially lower software bacterial adhesion markers, minimizing peri-implantitis risks and completely eliminating galvanic corrosion currents across the oral space.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rounded-lg glow-slot-premium transition-colors">
+                    <button onclick="handleAccordionToggle(this)" class="w-full text-left p-6 flex justify-between items-center text-clinicalWhite font-medium focus:outline-none">
+                        <span class="text-sm md:text-base pr-4">7. How exactly do you correct chronic jaw clicking and TMJ pain?</span>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-clinicalMuted transition-transform duration-300 shrink-0"></i>
+                    </button>
+                    <div class="max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                        <div class="p-6 pt-0 border-t border-white/5 text-xs md:text-sm text-clinicalMuted leading-relaxed">
+                            <p class="mt-4">
+                                Using digital dynamic T-Scan computerized occlusal sensor arrays, we precisely measure the distribution of microscale forces during biting cycles. We then map out a customized balance strategy that relieves stress on the condylar structure and muscular framework.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rounded-lg glow-slot-premium transition-colors">
+                    <button onclick="handleAccordionToggle(this)" class="w-full text-left p-6 flex justify-between items-center text-clinicalWhite font-medium focus:outline-none">
+                        <span class="text-sm md:text-base pr-4">8. What cleanroom standards protect the Mumbai Central surgical wing?</span>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-clinicalMuted transition-transform duration-300 shrink-0"></i>
+                    </button>
+                    <div class="max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                        <div class="p-6 pt-0 border-t border-white/5 text-xs md:text-sm text-clinicalMuted leading-relaxed">
+                            <p class="mt-4">
+                                Our modern operative suites operate under certified Class-100 HEPA structural environment filtration arrays. Air volume loops cycle continuously to maintain zero microscale ambient microbial contamination markers during precise surgical steps.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rounded-lg glow-slot-premium transition-colors">
+                    <button onclick="handleAccordionToggle(this)" class="w-full text-left p-6 flex justify-between items-center text-clinicalWhite font-medium focus:outline-none">
+                        <span class="text-sm md:text-base pr-4">9. Can a full-arch restoration occur without causing structural tooth extraction?</span>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-clinicalMuted transition-transform duration-300 shrink-0"></i>
+                    </button>
+                    <div class="max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                        <div class="p-6 pt-0 border-t border-white/5 text-xs md:text-sm text-clinicalMuted leading-relaxed">
+                            <p class="mt-4">
+                                Absolutely. By applying additive biomimetic restorative techniques, we place custom thin crystalline structures directly onto the worn sections of teeth. This elevates the occlusion profile safely while preserving your remaining healthy architecture.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rounded-lg glow-slot-premium transition-colors">
+                    <button onclick="handleAccordionToggle(this)" class="w-full text-left p-6 flex justify-between items-center text-clinicalWhite font-medium focus:outline-none">
+                        <span class="text-sm md:text-base pr-4">10. What is the typical timeframe required to complete custom restorative treatment?</span>
+                        <i data-lucide="chevron-down" class="w-4 h-4 text-clinicalMuted transition-transform duration-300 shrink-0"></i>
+                    </button>
+                    <div class="max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                        <div class="p-6 pt-0 border-t border-white/5 text-xs md:text-sm text-clinicalMuted leading-relaxed">
+                            <p class="mt-4">
+                                Following initial 3D optical scanning telemetry sessions, creation of your bespoke structural restorations inside our master laboratory generally takes roughly 10 to 14 days. During this interim, highly precise diagnostic mockups keep your bite completely stabilized.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section id="intake-portal" class="py-32 px-6 lg:px-12 content-layer-relative">
+        <div class="max-w-4xl mx-auto rounded-2xl p-8 md:p-16 space-y-12 shadow-2xl relative glow-slot-premium">
+            
+            <div class="text-center space-y-4">
+                <div class="inline-flex items-center gap-2 text-xs font-mono tracking-widest text-champagneGold uppercase bg-champagneGold/5 border border-champagneGold/10 px-3 py-1 rounded">
+                    Secure Medical Stream
+                </div>
+                <h2 class="text-editorial text-3xl text-clinicalWhite font-normal">Initiate Clinical Pre-Screening Document</h2>
+                <p class="text-sm text-clinicalMuted font-light max-w-xl mx-auto">
+                    Provide structural diagnostic records below. All data transmission occurs via encrypted channels complying fully with medical standard privacy protocols.
+                </p>
+            </div>
+
+            <form id="clinical-intake-form" class="space-y-8" onsubmit="handleFormSubmission(event)">
+                
+                <div class="w-full grid grid-cols-3 gap-2 text-center text-[10px] font-mono tracking-wider uppercase text-clinicalMuted">
+                    <div id="step-indicator-1" class="border-t-2 border-champagneGold pt-2 text-clinicalWhite font-semibold">1. Patient Metadata</div>
+                    <div id="step-indicator-2" class="border-t-2 border-white/5 pt-2">2. Clinical Evaluation</div>
+                    <div id="step-indicator-3" class="border-t-2 border-white/5 pt-2">3. Submission</div>
+                </div>
+
+                <div id="form-step-panel-1" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="block text-[11px] uppercase tracking-wider text-clinicalMuted font-medium">Legal Representative Name</label>
+                            <input type="text" required id="input-patient-name" placeholder="E.g., Dr. Harrison Vance" 
+                                   class="w-full bg-medicalDark border border-clinicalBorder rounded px-4 py-3.5 text-sm text-clinicalWhite placeholder-white/10 focus:outline-none focus:border-champagneGold transition-colors" />
+                        </div>
+                        <div class="space-y-2">
+                            <label class="block text-[11px] uppercase tracking-wider text-clinicalMuted font-medium">Confidential Contact Email</label>
+                            <input type="email" required id="input-patient-email" placeholder="E.g., harrison@vancemd.org" 
+                                   class="w-full bg-medicalDark border border-clinicalBorder rounded px-4 py-3.5 text-sm text-clinicalWhite placeholder-white/10 focus:outline-none focus:border-champagneGold transition-colors" />
+                        </div>
+                    </div>
+                    <div class="flex justify-end pt-4">
+                        <button type="button" onclick="navigateFormStep(2)" class="text-xs uppercase tracking-widest font-semibold bg-white/5 border border-clinicalBorder text-clinicalWhite px-8 py-4 rounded-sm hover:border-champagneGold hover:bg-champagneGold hover:text-medicalDark transition-all duration-300">
+                            Proceed to Clinical Analysis
+                        </button>
+                    </div>
+                </div>
+
+                <div id="form-step-panel-2" class="step-panel-hidden space-y-6">
+                    <div class="space-y-2">
+                        <label class="block text-[11px] uppercase tracking-wider text-clinicalMuted font-medium">Primary Oral Medicine Objective</label>
+                        <select id="input-patient-objective" class="w-full bg-medicalDark border border-clinicalBorder rounded px-4 py-3.5 text-sm text-clinicalWhite/80 focus:outline-none focus:border-champagneGold transition-colors">
+                            <option>Comprehensive Minimal-Prep Veneer Transformation</option>
+                            <option>Biological Zirconia Structural Reconstruction</option>
+                        </select>
+                    </div>
+                    <div class="flex justify-between pt-4">
+                        <button type="button" onclick="navigateFormStep(1)" class="text-xs uppercase tracking-widest text-clinicalMuted hover:text-clinicalWhite transition-colors">Back</button>
+                        <button type="button" onclick="navigateFormStep(3)" class="text-xs uppercase tracking-widest font-semibold bg-champagneGold text-medicalDark px-8 py-4 rounded-sm hover:bg-clinicalWhite transition-all duration-300">
+                            Proceed to Encryption Verification
+                        </button>
+                    </div>
+                </div>
+
+                <div id="form-step-panel-3" class="step-panel-hidden space-y-6 text-center py-6">
+                    <div class="w-12 h-12 rounded-full bg-champagneGold/10 flex items-center justify-center text-champagneGold mx-auto border border-champagneGold/30">
+                        <i data-lucide="lock" class="w-5 h-5"></i>
+                    </div>
+                    <p class="text-xs text-clinicalMuted max-w-md mx-auto leading-relaxed">
+                        By deploying this transmission portfolio, you declare full compliance with verified clinical privacy regulations.
+                    </p>
+                    <div class="flex justify-between pt-6 max-w-md mx-auto">
+                        <button type="button" onclick="navigateFormStep(2)" class="text-xs uppercase tracking-widest text-clinicalMuted hover:text-clinicalWhite transition-colors">Back</button>
+                        <button type="submit" class="text-xs uppercase tracking-widest font-semibold bg-emerald-600 text-white px-8 py-4 rounded-sm hover:bg-emerald-500 transition-all duration-300">
+                            Transmit Secured Portfolio
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+
+            <div id="form-success-mask" class="hidden absolute inset-0 bg-medicalSurface flex flex-col items-center justify-center text-center p-8 space-y-4 rounded-2xl animate-soft-fade-in">
+                <i data-lucide="check-circle" class="w-8 h-8 text-emerald-400"></i>
+                <h3 class="text-editorial text-2xl text-clinicalWhite font-normal">Transmission Vector Acknowledged</h3>
+            </div>
+
+        </div>
+    </section>
+
+    <div class="fixed bottom-6 right-6 z-50 content-layer-relative">
+        <button onclick="handleToggleChatbotWidget()" id="chatbot-trigger-action-btn" class="w-14 h-14 rounded-full bg-medicalSurface border border-champagneGold flex items-center justify-center text-champagneGold hover:bg-champagneGold hover:text-medicalDark transition-all duration-300 shadow-2xl group">
+            <i data-lucide="message-square" class="w-6 h-6 group-hover:scale-110 transition-transform"></i>
+        </button>
+    </div>
+
+    <div id="chatbot-interface-widget-window" class="hidden fixed bottom-24 right-6 w-80 sm:w-96 h-[520px] bg-medicalSurface rounded-xl border border-clinicalBorder flex flex-col overflow-hidden chat-container-shadow z-50 font-sans content-layer-relative transition-all duration-300">
+        <div class="p-4 border-b border-clinicalBorder bg-medicalDark/60 flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                <div>
+                    <h4 class="text-xs font-semibold text-clinicalWhite tracking-wide uppercase">AÉSTHETIQUE Concierge AI</h4>
+                    <span class="text-[10px] text-clinicalMuted block">Clinical Telemetry System Active</span>
+                </div>
+            </div>
+            <button onclick="handleToggleChatbotWidget()" class="text-clinicalMuted hover:text-clinicalWhite transition-colors">
+                <i data-lucide="minus" class="w-4 h-4"></i>
+            </button>
+        </div>
+
+        <div id="chatbot-conversation-scroll-viewport" class="flex-1 p-4 overflow-y-auto space-y-4 text-xs scroll-smooth">
+            <div class="p-3 rounded-lg message-bubble-bot text-clinicalMuted leading-relaxed max-w-[85%]">
+                Welcome to the Aésthetique secure system interface. I can provide real-time updates regarding our biological restorative treatments, cleanroom infrastructure guidelines, or assist you with scheduling parameters.
+            </div>
+            
+            <div class="space-y-1.5 pt-2" id="chatbot-predefined-faq-anchors-panel">
+                <span class="block text-[10px] uppercase font-mono text-champagneGold tracking-wider mb-2">Predefined Clinical Clarifications:</span>
+                <button onclick="handlePresetQueryExecution('Minimal-Prep Enamel Containment')" class="w-full text-left p-2.5 rounded border border-white/5 bg-white/[0.02] text-clinicalWhite hover:border-champagneGold/40 hover:bg-champagneGold/5 transition-all block">
+                    &rarr; Why minimal-prep enamel containment?
+                </button>
+                <button onclick="handlePresetQueryExecution('Biological Ceramic Implants')" class="w-full text-left p-2.5 rounded border border-white/5 bg-white/[0.02] text-clinicalWhite hover:border-champagneGold/40 hover:bg-champagneGold/5 transition-all block">
+                    &rarr; Inform me on biological ceramic implants.
+                </button>
+                <button onclick="handlePresetQueryExecution('Anxiety & Sedation Modalities')" class="w-full text-left p-2.5 rounded border border-white/5 bg-white/[0.02] text-clinicalWhite hover:border-champagneGold/40 hover:bg-champagneGold/5 transition-all block">
+                    &rarr; How is surgical patient anxiety managed?
+                </button>
+                <button onclick="handlePresetQueryExecution('Mumbai Clinic Operating Hours')" class="w-full text-left p-2.5 rounded border border-white/5 bg-white/[0.02] text-clinicalWhite hover:border-champagneGold/40 hover:bg-champagneGold/5 transition-all block">
+                    &rarr; What are the Mumbai operating hours?
+                </button>
+            </div>
+        </div>
+
+        <div class="p-3 border-t border-clinicalBorder bg-medicalDark/40 flex gap-2">
+            <input type="text" id="chatbot-user-text-input-field" onkeydown="if(event.key === 'Enter') handleProcessUserChatInput();" placeholder="Type clinical dynamic query..." class="flex-1 bg-medicalDark border border-clinicalBorder rounded px-3 py-2 text-xs text-clinicalWhite placeholder-white/20 focus:outline-none focus:border-champagneGold transition-colors" />
+            <button onclick="handleProcessUserChatInput()" class="px-3 bg-champagneGold text-medicalDark rounded flex items-center justify-center hover:bg-clinicalWhite transition-colors">
+                <i data-lucide="send" class="w-3.5 h-3.5"></i>
+            </button>
+        </div>
+    </div>
+
+    <footer class="border-t border-clinicalBorder bg-medicalDark pt-20 pb-12 px-6 lg:px-12 font-sans content-layer-relative">
+        <div class="max-w-7xl mx-auto space-y-16">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 items-start">
+                <div class="space-y-6">
+                    <span class="text-editorial text-xl tracking-widest text-clinicalWhite font-medium">AÉSTHETIQUE</span>
+                    <p class="text-xs text-clinicalMuted font-light leading-relaxed">
+                        Operating at the intersection of microscopic clinical mechanics, strict biological parameters, and advanced gnathological force balancing architecture.
+                    </p>
+                    <div class="flex items-center gap-4 pt-2">
+                        <a href="https://wa.me/918879390285" target="_blank" class="w-8 h-8 rounded-full border border-clinicalBorder flex items-center justify-center text-clinicalMuted hover:text-emerald-400 hover:border-emerald-400/40 transition-all" title="WhatsApp Clinical Connection Server">
+                            <i data-lucide="phone" class="w-4 h-4"></i>
+                        </a>
+                        <a href="mailto:hk91527388@gmail.com" class="w-8 h-8 rounded-full border border-clinicalBorder flex items-center justify-center text-clinicalMuted hover:text-champagneGold hover:border-champagneGold/40 transition-all" title="Secure Email Telemetry Route">
+                            <i data-lucide="mail" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <h5 class="text-[10px] uppercase tracking-widest text-champagneGold font-semibold">Clinical Protocols</h5>
+                    <div class="flex flex-col gap-2 text-xs text-clinicalMuted font-light">
+                        <a href="#micro-veneers" class="hover:text-clinicalWhite transition-colors">Microscopic Layering</a>
+                        <a href="#biological-implants" class="hover:text-clinicalWhite transition-colors">Biological Ceramic Units</a>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <h5 class="text-[10px] uppercase tracking-widest text-champagneGold font-semibold">Faculty & Science</h5>
+                    <div class="flex flex-col gap-2 text-xs text-clinicalMuted font-light">
+                        <a href="#medical-faculty" class="hover:text-clinicalWhite transition-colors">Medical Board Registry</a>
+                        <a href="#technology-suite" class="hover:text-clinicalWhite transition-colors">Diagnostic CBCT Systems</a>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <h5 class="text-[10px] uppercase tracking-widest text-champagneGold font-semibold">Mumbai Primary Wing</h5>
+                    <div class="text-xs text-clinicalMuted font-light space-y-1 leading-normal">
+                        <p class="text-clinicalWhite font-medium">Maker Chambers, Suite 402</p>
+                        <p>Nariman Point, Mumbai, MH 400021</p>
+                        <p class="pt-2 font-mono text-[11px] text-champagneGold">Tele: +91 88793 90285</p>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-white/5 pt-10 text-center text-[11px] text-clinicalMuted font-light">
+                <p>&copy; 2026 Aésthetique Dental Medicine Group LLC. All international clinical and biomimetic rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            initializeCaseSliders();
+            initThreeDAnatomicalBackground();
+        });
+
+        // ==========================================
+        // THREE.JS CONSOLIDATED SINGLE LARGE BACKDROP TOOTH SYSTEM
+        // ==========================================
+        function initThreeDAnatomicalBackground() {
+            const container = document.getElementById('canvas-3d-structural-root');
+            if (!container) return;
+
+            const scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x0E1012, 0.02);
+
+            const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+            camera.position.z = 24;
+
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0x0E1012, 0);
+            container.appendChild(renderer.domElement);
+
+            // True polished premium gold composite material
+            const goldMaterial = new THREE.MeshStandardMaterial({
+                color: 0xBC9F77,
+                roughness: 0.25,
+                metalness: 0.95,
+                flatShading: true,
+                side: THREE.DoubleSide
+            });
+
+            // Unified Singular Big Object Parent Assembly
+            const masterToothGroup = new THREE.Group();
+
+            // Crown Component Design
+            const crownGeometry = new THREE.CylinderGeometry(4.5, 3.5, 6.0, 6, 5);
+            const positionAttribute = crownGeometry.attributes.position;
+            
+            for (let i = 0; i < positionAttribute.count; i++) {
+                let x = positionAttribute.getX(i);
+                let y = positionAttribute.getY(i);
+                let z = positionAttribute.getZ(i);
+                
+                if (y > 2.0) { // Sculpt structural grooves natively
+                    x += Math.sin(z * 2) * 0.4;
+                    z += Math.cos(x * 2) * 0.4;
+                    y += (Math.sin(x * 3) * Math.cos(z * 3)) * 0.35;
+                }
+                positionAttribute.setXYZ(i, x, y, z);
+            }
+            crownGeometry.computeVertexNormals();
+            const crownMesh = new THREE.Mesh(crownGeometry, goldMaterial);
+            crownMesh.position.y = 3.0;
+            masterToothGroup.add(crownMesh);
+
+            // Left Root Module
+            const leftRootGeometry = new THREE.ConeGeometry(1.5, 6.5, 5);
+            const leftRootMesh = new THREE.Mesh(leftRootGeometry, goldMaterial);
+            leftRootMesh.rotation.z = 0.18;
+            leftRootMesh.position.set(-1.5, -2.8, 0);
+            masterToothGroup.add(leftRootMesh);
+
+            // Right Root Module
+            const rightRootGeometry = new THREE.ConeGeometry(1.4, 6.0, 5);
+            const rightRootMesh = new THREE.Mesh(rightRootGeometry, goldMaterial);
+            rightRootMesh.rotation.z = -0.18;
+            rightRootMesh.position.set(1.5, -2.6, 0);
+            masterToothGroup.add(rightRootMesh);
+
+            // Center massive model scale adjustments
+            masterToothGroup.scale.set(1.1, 1.1, 1.1);
+            scene.add(masterToothGroup);
+
+            // Light Arrays mapping reflecting off gold textures
+            const directionalKeyLight = new THREE.DirectionalLight(0xFFF6E5, 2.0);
+            directionalKeyLight.position.set(6, 12, 8);
+            scene.add(directionalKeyLight);
+
+            const ambientWarmLight = new THREE.AmbientLight(0x3A2E1B, 1.1);
+            scene.add(ambientWarmLight);
+
+            const clinicalFillLight = new THREE.PointLight(0xBC9F77, 2.8, 50);
+            clinicalFillLight.position.set(-10, 5, 6);
+            scene.add(clinicalFillLight);
+
+            let historicalScrollY = window.scrollY;
+            let currentTargetRotationY = 0;
+            let rotationalProgressMetric = 1.0;
+            let internalBaseRotationY = 0;
+
+            window.addEventListener('scroll', () => {
+                const currentScrollY = window.scrollY;
+                const scrollDelta = currentScrollY - historicalScrollY;
+                historicalScrollY = currentScrollY;
+
+                // Slow structural drift downward based on scroll displacement metrics
+                masterToothGroup.position.y = -(currentScrollY * 0.003);
+
+                // Check condition parameter triggers for exact 180 degrees flip cycle ($\pi$ Radians)
+                if (Math.abs(scrollDelta) > 15 && rotationalProgressMetric >= 1.0) {
+                    internalBaseRotationY = masterToothGroup.rotation.y;
+                    currentTargetRotationY = internalBaseRotationY + Math.PI;
+                    rotationalProgressMetric = 0.0;
+                }
+            });
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+
+            const clockSystem = new THREE.Clock();
+
+            function renderEngineLoop() {
+                requestAnimationFrame(renderEngineLoop);
+                const loopDelta = clockSystem.getDelta();
+
+                if (rotationalProgressMetric < 1.0) {
+                    rotationalProgressMetric += loopDelta * 1.15; // Animation transformation duration modifier
+                    if (rotationalProgressMetric > 1.0) rotationalProgressMetric = 1.0;
+                    
+                    const cubicEasingMetric = 1 - Math.pow(1 - rotationalProgressMetric, 3);
+                    masterToothGroup.rotation.y = THREE.MathUtils.lerp(internalBaseRotationY, currentTargetRotationY, cubicEasingMetric);
+                } else {
+                    // Continuous clean horizontal rotation track updates
+                    masterToothGroup.rotation.y += loopDelta * 0.12;
+                }
+
+                // Micro wobble trajectory simulation paths
+                masterToothGroup.rotation.x = Math.sin(clockSystem.getElapsedTime() * 0.4) * 0.05;
+
+                renderer.render(scene, camera);
+            }
+            renderEngineLoop();
+        }
+
+        // ==========================================
+        // CLINICAL SYSTEM REAL-TIME AI CHATBOT ARCHITECTURE
+        // ==========================================
+        const structuralKnowledgeDatabase = {
+            "minimal-prep enamel containment": "Our minimal-prep procedures slice depth parameters down under 0.3mm to safeguard up to 92% of native organic tooth structure under Carl Zeiss stereoscopic systems.",
+            "biological ceramic implants": "We feature metal-free 100% biocompatible pure zirconia restorative solutions that mimic native tooth root mechanics and show excellent zero-toxicity and low software bacterial footprint integration markers.",
+            "anxiety & sedation modalities": "We eliminate sensory stress parameters by using ambient room soundproofing, zero drill-frequency resonance systems, and full intravenous conscious sedation treatments run under board-certified MD anesthesiologist safety controls.",
+            "mumbai clinic operating hours": "Our Mumbai wing based at Nariman Point coordinates private consultations Monday through Saturday from 9:00 AM to 8:00 PM. Emergency triage support remains available 24/7.",
+            "case registry outcomes": "Our unretouched case gallery documents completed structural adjustments for deep attritional wear matrix cases and congenital midline diastemas across short 2-session protocols.",
+            "materials validation": "Aésthetique strictly rules out any application of toxic composite monomers or industrial mercury amalgams. Only certified biocompatible crystalline ceramics cross our sterile fields.",
+            "mumbai clinical location": "The definitive clinical operations hub is situated inside Suite 402, Maker Chambers, Nariman Point, Mumbai, MH 400021.",
+            "insurance alignment models": "To lock in zero corporate third-party interference regarding material selections, we operate out-of-network. We coordinate itemized verification sheets matching ADA coding layouts for personal direct retrieval claims."
+        };
+
+        function handleToggleChatbotWidget() {
+            const chatbotContainerWindow = document.getElementById('chatbot-interface-widget-window');
+            chatbotContainerWindow.classList.toggle('hidden');
+        }
+
+        function handlePresetQueryExecution(selectedPresetQueryString) {
+            // Process parameter string directly through conversion system channels
+            appendChatboxMessageRow(selectedPresetQueryString, 'user');
+            
+            // Generate contextual analytical response mappings
+            let normalizedQueryToken = selectedPresetQueryString.toLowerCase().trim();
+            let matchingResponseOutputString = "Our automated triage tracking system has flagged your specific interest entry. Please state your baseline query parameter cleanly or submit your full portfolio to our primary intake desk.";
+
+            for (const [databaseKeyPhrase, contextualAnswerText] of Object.entries(structuralKnowledgeDatabase)) {
+                if (normalizedQueryToken.includes(databaseKeyPhrase) || databaseKeyPhrase.includes(normalizedQueryToken)) {
+                    matchingResponseOutputString = contextualAnswerText;
+                    break;
+                }
+            }
+
+            setTimeout(() => {
+                appendChatboxMessageRow(matchingResponseOutputString, 'bot');
+            }, 350);
+        }
+
+        function handleProcessUserChatInput() {
+            const messageInputFieldElement = document.getElementById('chatbot-user-text-input-field');
+            const targetUserTextString = messageInputFieldElement.value.trim();
+            if (!targetUserTextString) return;
+
+            // Deactivate visible preset buttons layout panel on initial user text input entry
+            const activePresetPanelElement = document.getElementById('chatbot-predefined-faq-anchors-panel');
+            if (activePresetPanelElement) activePresetPanelElement.style.display = 'none';
+
+            appendChatboxMessageRow(targetUserTextString, 'user');
+            messageInputFieldElement.value = '';
+
+            let structuralSearchToken = targetUserTextString.toLowerCase();
+            let defaultFallbackResponseString = "Understood. Your specific diagnostics notes have been compiled. I recommend triggering our encrypted patient intake portal box above to verify physical case slots directly in Mumbai.";
+
+            for (const [knowledgeKey, resolutionValueText] of Object.entries(structuralKnowledgeDatabase)) {
+                if (structuralSearchToken.includes(knowledgeKey) || knowledgeKey.includes(structuralSearchToken)) {
+                    defaultFallbackResponseString = resolutionValueText;
+                    break;
+                }
+            }
+
+            setTimeout(() => {
+                appendChatboxMessageRow(defaultFallbackResponseString, 'bot');
+            }, 400);
+        }
+
+        function appendChatboxMessageRow(messagePayloadString, identityClassificationType) {
+            const scrollViewportElement = document.getElementById('chatbot-conversation-scroll-viewport');
+            const newMessageBubbleElement = document.createElement('div');
+            
+            newMessageBubbleElement.classList.add('p-3', 'rounded-lg', 'leading-relaxed', 'max-w-[85%]', 'animate-soft-fade-in');
+            
+            if (identityClassificationType === 'user') {
+                newMessageBubbleElement.classList.add('message-bubble-user', 'ml-auto', 'text-clinicalWhite');
+            } else {
+                newMessageBubbleElement.classList.add('message-bubble-bot', 'text-clinicalMuted');
+            }
+
+            newMessageBubbleElement.textContent = messagePayloadString;
+            scrollViewportElement.appendChild(newMessageBubbleElement);
+            
+            // Maintain continuous dynamic scroll adjustments down tracking view boundaries
+            scrollViewportElement.scrollTop = scrollViewportElement.scrollHeight;
+        }
+
+        // Generic Mobile UI & Layout Handlers
+        function toggleMobileMenu() {
+            const drawer = document.getElementById('mobile-navigation-drawer');
+            const openIcon = document.getElementById('menu-icon-open');
+            const closeIcon = document.getElementById('menu-icon-close');
+            drawer.classList.toggle('hidden');
+            openIcon.classList.toggle('hidden');
+            closeIcon.classList.toggle('hidden');
+        }
+
+        function handleAccordionToggle(buttonElement) {
+            const bodyPanel = buttonElement.nextElementSibling;
+            const vectorIcon = buttonElement.querySelector('[data-lucide="chevron-down"]');
+            const isTargetOpen = bodyPanel.style.maxHeight && bodyPanel.style.maxHeight !== '0px';
+
+            document.querySelectorAll('#faq-matrix .max-h-0').forEach(element => {
+                element.style.maxHeight = '0px';
+                const pIcon = element.previousElementSibling.querySelector('[data-lucide="chevron-down"]');
+                if (pIcon) pIcon.style.transform = 'rotate(0deg)';
+            });
+
+            if (isTargetOpen) {
+                bodyPanel.style.maxHeight = '0px';
+                if (vectorIcon) vectorIcon.style.transform = 'rotate(0deg)';
+            } else {
+                bodyPanel.style.maxHeight = bodyPanel.scrollHeight + "px";
+                if (vectorIcon) vectorIcon.style.transform = 'rotate(180deg)';
+            }
+        }
+
+        function navigateFormStep(targetStepIndex) {
+            document.getElementById('form-step-panel-1').classList.add('step-panel-hidden');
+            document.getElementById('form-step-panel-2').classList.add('step-panel-hidden');
+            document.getElementById('form-step-panel-3').classList.add('step-panel-hidden');
+            document.getElementById(`form-step-panel-${targetStepIndex}`).classList.remove('step-panel-hidden');
+        }
+
+        function handleFormSubmission(event) {
+            event.preventDefault();
+            document.getElementById('form-success-mask').classList.remove('hidden');
+        }
+
+        function initializeCaseSliders() {
+            const container = document.getElementById('slider-container-1');
+            const maskLayer = document.getElementById('after-mask-1');
+            const controllerBar = document.getElementById('slider-bar-1');
+
+            if (!container || !maskLayer || !controllerBar) return;
+            let systemIsActive = false;
+
+            function clearCoordinatePosition(xAxisCoordinate) {
+                const layoutBoundingRect = container.getBoundingClientRect();
+                let comparativeXPosition = xAxisCoordinate - layoutBoundingRect.left;
+                if (comparativeXPosition < 0) comparativeXPosition = 0;
+                if (comparativeXPosition > layoutBoundingRect.width) comparativeXPosition = layoutBoundingRect.width;
+                const dynamicRatioScale = (comparativeXPosition / layoutBoundingRect.width) * 100;
+                maskLayer.style.width = `${dynamicRatioScale}%`;
+                controllerBar.style.left = `${dynamicRatioScale}%`;
+            }
+
+            container.addEventListener('mousedown', () => systemIsActive = true);
+            window.addEventListener('mouseup', () => systemIsActive = false);
+            container.addEventListener('mousemove', (event) => { if (systemIsActive) clearCoordinatePosition(event.clientX); });
+        }
+    </script>
+</body>
+</html>
